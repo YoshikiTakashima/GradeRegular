@@ -46,10 +46,10 @@ def classifyContents(image, circles):
     for c in circles:
         y = c.xy[1]
         x = c.xy[0]
-        shift= int(0.5*c.r)
+        shift= int(0.7*c.r)
         cropped = image[y - shift:y + shift, x - shift:x + shift]
         ImageUtils.show(cropped)
-        ImageUtils.ocrToString(cropped)
+        print(ImageUtils.ocrToString(cropped))
     return(circles)
 
 def recognize(img):
@@ -77,7 +77,7 @@ def recognize(img):
     return circles
 
 def main():
-    img = cv2.imread('./Examples/handDFA.jpg')
+    img = cv2.imread('../Examples/handDFA.jpg')
     circles = recognize(img)
 
     if circles is not None:
