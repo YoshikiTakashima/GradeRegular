@@ -214,7 +214,7 @@ def recognize(img):
 	img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 	h, w = img.shape
 	detectList = [] 
-	side = int(round(0.14 * min(h, w)))
+	side = int(round(0.2 * min(h, w)))
 	while side >= (0.08 * min(h, w)):
 		microstep = int(round(side * STEP))
 		for x in range(0, w - side - 1, microstep):
@@ -253,17 +253,17 @@ def recognize(img):
 
 def main():
 	colorList = {'Let': (255,0,0), 'Num': (0,0,255), 'Let-Num': (0,255,0)}
-	img = cv2.imread('../Examples/handDFA.jpg')
+	img = cv2.imread('../Examples/BigTest.jpg')
 	print("Detecting Text Region...\n")
 	symbols = recognize(img)
 	print("Classifying Text Region as Letter or Text...\n")
-	symbols = classifySymbol(img, symbols)
+	# symbols = classifySymbol(img, symbols)
 	print("Joining Duplicate Symbols...\n")
-	symbols = joinSymbols(img, symbols)
+	# symbols = joinSymbols(img, symbols)
 	if symbols is not None:
 		print('{} Circles Found.'.format(len(symbols)))
 		for i in symbols:
-			cv2.rectangle(img, (i[0], i[1]), (i[0] + i[2], i[1] + i[2]), colorList[i[3]], 2)
+			cv2.rectangle(img, (i[0], i[1]), (i[0] + i[2], i[1] + i[2]), colorList['Let-Num'], 2)
 
 	else:
 		print('No Circles Found!')
