@@ -345,11 +345,83 @@ def connectLines(lines):
 		if joinWith >= 0:
 			done[joinWith] = True
 			connected.append(lines[i] + list(reversed(lines[joinWith])))
-			print("Concat Line: \t{:5.5}% \t{}".format(100 * count / TOTAL, joinWith))
+			print("Concat Line: \t{:5.5}%".format(100 * count / TOTAL))
 			joinWith = -1
 		else:
 			print("Filtered Line: \t{:5.5}%".format(100 * count / TOTAL))
 	return connected
+
+def detectLineLabel(tracedLines):
+	LONGSIDEHALFAMP = 8
+	SHORTLONGSIDERATIO = 0.4
+	for i in range(len(tracedLines)):
+		line = tracedLines[i]
+		end1 = line[0]
+		end2 = line[-1]
+		diffX = end1[0] - end2[0]
+		diffY = end1[1] - end2[1]
+		side1 = abs(end1[1] - end1[3])
+		side2 = abs(end2[1] - end2[3])
+
+		rect1 = []
+		rect2 = []
+		if abs(diffX) > abs(diffY):
+			if diffX > 0:
+				hSide1 = int(round(LONGSIDEHALFAMP * 2 * side1))
+				vSide1 = int(round(SHORTLONGSIDERATIO * 2 * hSide1))
+				topX1 = end1[0] - hSide1
+				topY1 = int(round(end1[1] - (0.5 * vSide1)))
+				rect1 = (topX1, topY1, topX1 + hSide1, topY1 + vSide1)
+
+				hSide2 = int(round(LONGSIDEHALFAMP * 2 * side2))
+				vSide2 = int(round(SHORTLONGSIDERATIO * 2 * hSide2))
+				topX2 = end2[0]
+				topY2 = int(round(end2[1] - (0.5 * vSide2)))
+				rect2 = (topX2, topY2, topX2 + hSide2, topY2 + vSide2)
+				print("X1: {}, {}".format(rect1, rect2))
+			else:
+				hSide1 = int(round(LONGSIDEHALFAMP * 2 * side1))
+				vSide1 = int(round(SHORTLONGSIDERATIO * 2 * hSide1))
+				topX1 = end1[0]
+				topY1 = int(round(end1[1] - (0.5 * vSide1)))
+				rect1 = (topX1, topY1, topX1 + hSide1, topY1 + vSide1)
+
+				hSide2 = int(round(LONGSIDEHALFAMP * 2 * side2))
+				vSide2 = int(round(SHORTLONGSIDERATIO * 2 * hSide2))
+				topX2 = end2[0] - hSide2
+				topY2 = int(round(end2[1] - (0.5 * vSide2)))
+				rect2 = (topX2, topY2, topX2 + hSide2, topY2 + vSide2)
+				print("X2: {}, {}".format(rect1, rect2))
+		else:
+			if diffY > 0:
+				vSide1 = int(round(LONGSIDEHALFAMP * 2 * side1))
+				hSide1 = int(round(SHORTLONGSIDERATIO * 2 * hSide1))
+				topX1 = int(round(end1[0] - (0.5 * hSide1)))
+				topY1 = end1[1] - vSide1
+				rect1 = (topX1, topY1, topX1 + hSide1, topY1 + vSide1)
+
+				vSide2 = int(round(LONGSIDEHALFAMP * 2 * side2))
+				hSide2 = int(round(SHORTLONGSIDERATIO * 2 * hSide2))
+				topX2 = int(round(end2[0] - (0.5 * hSide2)))
+				topY2 = end2[1]
+				rect2 = (topX2, topY2, topX2 + hSide2, topY2 + vSide2)
+				print("Y1: {}, {}".format(rect1, rect2))
+			else:
+				vSide1 = int(round(LONGSIDEHALFAMP * 2 * side1))
+				hSide1 = int(round(SHORTLONGSIDERATIO * 2 * hSide1))
+				topX1 = int(round(end1[0] - (0.5 * hSide1)))
+				topY1 = end1[1]
+				rect1 = (topX1, topY1, topX1 + hSide1, topY1 + vSide1)
+
+				vSide2 = int(round(LONGSIDEHALFAMP * 2 * side2))
+				hSide2 = int(round(SHORTLONGSIDERATIO * 2 * hSide2))
+				topX2 = int(round(end2[0] - (0.5 * hSide2)))
+				topY2 = end2[1] - vSide2
+				rect2 = (topX2, topY2, topX2 + hSide2, topY2 + vSide2)
+				print("Y2: {}, {}".format(rect1, rect2))
+		tracedLines[i] = [rect1] + line + [rect2]
+
+	return tracedLines
 
 def encode(states, lines):
 	encodedNodeList = []
@@ -362,10 +434,12 @@ def main():
 	states = filterRepetition(states)
 	states = filterRepetition(states)
 	states = classifyStateType(img, states)
-
+	print()
 	lines = scanLinesAroundStates(img, states)
 	lineResult = extrapolateLines(img, lines, states)
-	# lineResult = connectLines(lineResult)
+	print()
+	lineResult = connectLines(lineResult)
+	lineResult = detectLineLabel(lineResult)
 
 	# print(lines)
 	for s in states:
@@ -374,8 +448,12 @@ def main():
 		# draw the center of the circle
 		cv2.circle(img,(s[0],s[1]),2,(0,0,255),3)
 	for line in lineResult:
-		for rect in line:
-			cv2.rectangle(img, (rect[0], rect[1]), (rect[2], rect[3]), (0,255,0), 2)
+		for i in range(len(line)):
+			rect = line[i]
+			if i == 0 or i == len(line) - 1:
+				cv2.rectangle(img, (rect[0], rect[1]), (rect[2], rect[3]), (200,0,200), 2)
+			else:
+				cv2.rectangle(img, (rect[0], rect[1]), (rect[2], rect[3]), (0,255,0), 2)
 		ImageUtils.show(img)
 
 if __name__ == '__main__':
