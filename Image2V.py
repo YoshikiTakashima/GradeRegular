@@ -353,22 +353,19 @@ def connectLines(lines):
 	return connected
 
 def detectLabels(img, tracedLines, states):
-	letters = []
-	img = img.copy()
-
+	letterRects = []
+	editImg = img.copy()
 	for line in tracedLines:
 		for rect in line:
-			cv2.rectangle(img, (rect[0], rect[1]), (rect[2], rect[3]), (255, 255, 255), -1)
+			cv2.rectangle(editImg, (rect[0], rect[1]), (rect[2], rect[3]), (255, 255, 255), -1)
 	for state in states:
-		cv2.circle(img,(state[0],state[1]),int(round(1.25 * state[2])),(255, 255, 255),-1)
+		cv2.circle(editImg,(state[0],state[1]),int(round(1.25 * state[2])),(255, 255, 255),-1)
 	
-	rects = ImageUtils.mser(img)
-	rects = ImageUtils.filterInvalidTextRegions(img.copy(), rects)
-	for rect in rects:
-		cv2.rectangle(img, (rect[0], rect[1]), (rect[2], rect[3]), (0,255,0), 2)
-		ImageUtils.show(img)
+	letterRects = ImageUtils.mser(editImg)
+	letterRects = ImageUtils.filterInvalidTextRegions(img, letterRects)
+	
 
-	return letters
+	return letterRects
 
 def encode(states, lines):
 	encodedNodeList = []
@@ -402,7 +399,10 @@ def main():
 				cv2.rectangle(img, (rect[0], rect[1]), (rect[2], rect[3]), (200,0,200), 2)
 			else:
 				cv2.rectangle(img, (rect[0], rect[1]), (rect[2], rect[3]), (0,255,0), 2)
-	# ImageUtils.show(img)
+	for r in labels:
+		cv2.rectangle(img, (r[0], r[1]), (r[2], r[3]), (200,200,0), 2)
+	
+	ImageUtils.show(img)
 
 if __name__ == '__main__':
 	main()

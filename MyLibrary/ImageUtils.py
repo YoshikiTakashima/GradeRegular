@@ -66,6 +66,7 @@ def mser(img):
 	return rects
 
 def filterInvalidTextRegions(img, regions):
+	h, w, d = img.shape
 	done = []
 	for i in range(len(regions)):
 		done.append(False)
@@ -96,9 +97,32 @@ def filterInvalidTextRegions(img, regions):
 			xMax = int(round(statistics.median(xMaxList)))
 			yMax = int(round(statistics.median(yMaxList)))
 			noRepetition.append((xMin, yMin, xMax, yMax))
-			print()
-		
-	return noRepetition
+
+	withWhiteBorder = []
+	AMP = 1.5
+	HSIDERATIO = 0.75
+	for r in noRepetition:
+		center = (np.mean([r[0], r[2]]), np.mean([r[1], r[3]]))
+		xDiff = abs(r[2] - r[0])
+		yDiff = abs(r[3] - r[1])
+
+		yShift = (AMP * yDiff) / 2
+		xShift = HSIDERATIO * yShift
+
+		xMin = max(int(round(center[0] - xShift)), 0)
+		yMin = max(int(round(center[1] - yShift)), 0)
+		xMax = min(int(round(center[0] + xShift)), w)
+		yMax = min(int(round(center[1] + yShift)), h)
+
+		testScanImg = np.copy(img[yMin:yMax, xMin:xMax])
+		reducedHeight, reducedWidth, reducedDepth = testScanImg.shape
+		testScanImg[1:reducedHeight-2, 1:reducedWidth-2] = (255, 255, 255) #white out everything except the outer lining
+		if avgGreyVal(testScanImg) == 255:
+			withWhiteBorder.append((xMin, yMin, xMax, yMax))
+		# else:
+			# print("REJECTED: Greyval = {}".format(avgGreyVal(testScanImg)))
+	
+	return withWhiteBorder
 
 
 
