@@ -2,6 +2,7 @@ import cv2
 import numpy as np
 from matplotlib import pyplot as plt
 import math
+import statistics
 from PIL import Image
 from PIL import ImageFilter
 import pytesseract
@@ -39,16 +40,67 @@ def avgGreyVal(img):
 	img = binarize(np.copy(img))
 	return np.mean(img)
 
-def isImageTextRegion(img):
-	img = denoiseMedian(img)
+def mser(img):
+	img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+	img = denoiseGaussian(img)
+	ret,img = cv2.threshold(img, 128, 255, cv2.THRESH_BINARY)
 	h, w = img.shape
+	rects = []
 
-	cornerScanImg = np.copy(img)
-	cornerScanImg[1:h-2, 1:w-2] = (255, 255, 255) #white out everything except the outer lining rows/columes
-	isCornerWhite = (avgGreyVal(cornerScanImg) == 255)
+	mser = cv2.MSER_create()
+	regions, _ = mser.detectRegions(img)
+	for p in regions:
+		xmax, ymax = np.amax(p, axis=0)
+		xmin, ymin = np.amin(p, axis=0)
 
-	isImgNonWhite = (avgGreyVal(img) < 255)
-	return isCornerWhite and isImgNonWhite
+		xDiff = abs(xmax - xmin)
+		yDiff = abs(ymax - ymin)
+		
+		isPortrait = xDiff < yDiff
+		isGoodHeight = (yDiff > (0.01 * h)) and (yDiff < (0.1 * h)) 
+		isGoodWidth = (xDiff > (0.005 * w)) and (xDiff < (0.1 * w))
+		isGoodRatio = ((xDiff / yDiff) < 0.75)
+
+		if isPortrait and isGoodHeight and isGoodWidth:
+			rects.append((xmin, ymin, xmax, ymax))
+	return rects
+
+def filterInvalidTextRegions(img, regions):
+	done = []
+	for i in range(len(regions)):
+		done.append(False)
+	noRepetition = []
+
+	for i in range(len(regions)):
+		current = regions[i]
+		if not done[i]:
+			done[i] = True
+			xMaxList = [current[2]]
+			xMinList = [current[0]]
+			yMaxList = [current[3]]
+			yMinList = [current[1]]
+			for j in range(len(regions)):
+				if not done[j]:
+					target = regions[j]
+					center = (int(round(np.mean([target[0], target[2]]))), int(round(np.mean([target[1], target[3]]))))
+					if (center[0] in range(current[0], current[2])) and \
+						(center[1] in range(current[1], current[3])):
+						done[j] = True
+						xMinList.append(target[0])
+						yMinList.append(target[1])
+						xMaxList.append(target[2])
+						yMaxList.append(target[3])
+			
+			xMin = int(round(statistics.median(xMinList)))
+			yMin = int(round(statistics.median(yMinList)))
+			xMax = int(round(statistics.median(xMaxList)))
+			yMax = int(round(statistics.median(yMaxList)))
+			noRepetition.append((xMin, yMin, xMax, yMax))
+			print()
+		
+	return noRepetition
+
+
 
 def main():
 	#from sys import argv

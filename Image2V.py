@@ -361,8 +361,12 @@ def detectLabels(img, tracedLines, states):
 			cv2.rectangle(img, (rect[0], rect[1]), (rect[2], rect[3]), (255, 255, 255), -1)
 	for state in states:
 		cv2.circle(img,(state[0],state[1]),int(round(1.25 * state[2])),(255, 255, 255),-1)
-
-	# ImageUtils.show(img)
+	
+	rects = ImageUtils.mser(img)
+	rects = ImageUtils.filterInvalidTextRegions(img.copy(), rects)
+	for rect in rects:
+		cv2.rectangle(img, (rect[0], rect[1]), (rect[2], rect[3]), (0,255,0), 2)
+		ImageUtils.show(img)
 
 	return letters
 
@@ -398,7 +402,7 @@ def main():
 				cv2.rectangle(img, (rect[0], rect[1]), (rect[2], rect[3]), (200,0,200), 2)
 			else:
 				cv2.rectangle(img, (rect[0], rect[1]), (rect[2], rect[3]), (0,255,0), 2)
-	ImageUtils.show(img)
+	# ImageUtils.show(img)
 
 if __name__ == '__main__':
 	main()
