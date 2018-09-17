@@ -5,7 +5,7 @@ import statistics
 from matplotlib import pyplot as plt
 import MyLibrary.ImageUtils as ImageUtils
 
-SCANNERWIDTH = 1 # NOTE: Real scanner width is 2(that value) + 3
+SCANNERWIDTH = 2 # NOTE: Real scanner width is 2(that value) + 1
 def scanToDark(img, point, minSize, maxSize):
 	x = point[0]
 	y = point[1]
@@ -74,8 +74,8 @@ def scanToDark(img, point, minSize, maxSize):
 	symmetricTolerance = 0.5 #0.5 orig
 	isSymmetric = (abs((vertSize / horizSize) - 1) < symmetricTolerance)
 
-	centerTolerance = 0.5	#0.5 orig
-	isCentered = (abs((top / bot) - 1) < centerTolerance) and (abs((left / right) - 1) < centerTolerance)
+	centerTolerance = 0.15	#0.5 orig
+	isCentered = (abs((top - bot) / vertSize) < centerTolerance) and (abs((left - right) / horizSize) < centerTolerance)
 
 	isCircleCenter = isContained and isGoodSize and isSymmetric and isCentered
 	return isCircleCenter, int(round(statistics.median([top, bot, left, right])))
@@ -310,6 +310,7 @@ def extrapolateLines(img, lines, states):
 				line.append((sq[0], sq[1], sq[2], sq[3]))
 				if nearNode(sq[0], sq[1], states):
 					result.append(line)
+					result.append([(sq[0], sq[1], sq[2], sq[3])])
 					print("NORMAL EXIT: \t{:5.5}%".format(100 * count / TOTAL))
 					break
 	return result
@@ -351,77 +352,19 @@ def connectLines(lines):
 			print("Filtered Line: \t{:5.5}%".format(100 * count / TOTAL))
 	return connected
 
-def detectLineLabel(tracedLines):
-	LONGSIDEHALFAMP = 8
-	SHORTLONGSIDERATIO = 0.4
-	for i in range(len(tracedLines)):
-		line = tracedLines[i]
-		end1 = line[0]
-		end2 = line[-1]
-		diffX = end1[0] - end2[0]
-		diffY = end1[1] - end2[1]
-		side1 = abs(end1[1] - end1[3])
-		side2 = abs(end2[1] - end2[3])
+def detectLabels(img, tracedLines, states):
+	letters = []
+	img = img.copy()
 
-		rect1 = []
-		rect2 = []
-		if abs(diffX) > abs(diffY):
-			if diffX > 0:
-				hSide1 = int(round(LONGSIDEHALFAMP * 2 * side1))
-				vSide1 = int(round(SHORTLONGSIDERATIO * 2 * hSide1))
-				topX1 = end1[0] - hSide1
-				topY1 = int(round(end1[1] - (0.5 * vSide1)))
-				rect1 = (topX1, topY1, topX1 + hSide1, topY1 + vSide1)
+	for line in tracedLines:
+		for rect in line:
+			cv2.rectangle(img, (rect[0], rect[1]), (rect[2], rect[3]), (255, 255, 255), -1)
+	for state in states:
+		cv2.circle(img,(state[0],state[1]),int(round(1.25 * state[2])),(255, 255, 255),-1)
 
-				hSide2 = int(round(LONGSIDEHALFAMP * 2 * side2))
-				vSide2 = int(round(SHORTLONGSIDERATIO * 2 * hSide2))
-				topX2 = end2[0]
-				topY2 = int(round(end2[1] - (0.5 * vSide2)))
-				rect2 = (topX2, topY2, topX2 + hSide2, topY2 + vSide2)
-				print("X1: {}, {}".format(rect1, rect2))
-			else:
-				hSide1 = int(round(LONGSIDEHALFAMP * 2 * side1))
-				vSide1 = int(round(SHORTLONGSIDERATIO * 2 * hSide1))
-				topX1 = end1[0]
-				topY1 = int(round(end1[1] - (0.5 * vSide1)))
-				rect1 = (topX1, topY1, topX1 + hSide1, topY1 + vSide1)
+	# ImageUtils.show(img)
 
-				hSide2 = int(round(LONGSIDEHALFAMP * 2 * side2))
-				vSide2 = int(round(SHORTLONGSIDERATIO * 2 * hSide2))
-				topX2 = end2[0] - hSide2
-				topY2 = int(round(end2[1] - (0.5 * vSide2)))
-				rect2 = (topX2, topY2, topX2 + hSide2, topY2 + vSide2)
-				print("X2: {}, {}".format(rect1, rect2))
-		else:
-			if diffY > 0:
-				vSide1 = int(round(LONGSIDEHALFAMP * 2 * side1))
-				hSide1 = int(round(SHORTLONGSIDERATIO * 2 * hSide1))
-				topX1 = int(round(end1[0] - (0.5 * hSide1)))
-				topY1 = end1[1] - vSide1
-				rect1 = (topX1, topY1, topX1 + hSide1, topY1 + vSide1)
-
-				vSide2 = int(round(LONGSIDEHALFAMP * 2 * side2))
-				hSide2 = int(round(SHORTLONGSIDERATIO * 2 * hSide2))
-				topX2 = int(round(end2[0] - (0.5 * hSide2)))
-				topY2 = end2[1]
-				rect2 = (topX2, topY2, topX2 + hSide2, topY2 + vSide2)
-				print("Y1: {}, {}".format(rect1, rect2))
-			else:
-				vSide1 = int(round(LONGSIDEHALFAMP * 2 * side1))
-				hSide1 = int(round(SHORTLONGSIDERATIO * 2 * hSide1))
-				topX1 = int(round(end1[0] - (0.5 * hSide1)))
-				topY1 = end1[1]
-				rect1 = (topX1, topY1, topX1 + hSide1, topY1 + vSide1)
-
-				vSide2 = int(round(LONGSIDEHALFAMP * 2 * side2))
-				hSide2 = int(round(SHORTLONGSIDERATIO * 2 * hSide2))
-				topX2 = int(round(end2[0] - (0.5 * hSide2)))
-				topY2 = end2[1] - vSide2
-				rect2 = (topX2, topY2, topX2 + hSide2, topY2 + vSide2)
-				print("Y2: {}, {}".format(rect1, rect2))
-		tracedLines[i] = [rect1] + line + [rect2]
-
-	return tracedLines
+	return letters
 
 def encode(states, lines):
 	encodedNodeList = []
@@ -436,10 +379,11 @@ def main():
 	states = classifyStateType(img, states)
 	print()
 	lines = scanLinesAroundStates(img, states)
-	lineResult = extrapolateLines(img, lines, states)
+	extLines = extrapolateLines(img, lines, states)
 	print()
-	lineResult = connectLines(lineResult)
-	lineResult = detectLineLabel(lineResult)
+	lineResult = connectLines(extLines)
+
+	labels = detectLabels(img, lineResult, states)
 
 	# print(lines)
 	for s in states:
@@ -454,7 +398,7 @@ def main():
 				cv2.rectangle(img, (rect[0], rect[1]), (rect[2], rect[3]), (200,0,200), 2)
 			else:
 				cv2.rectangle(img, (rect[0], rect[1]), (rect[2], rect[3]), (0,255,0), 2)
-		ImageUtils.show(img)
+	ImageUtils.show(img)
 
 if __name__ == '__main__':
 	main()
