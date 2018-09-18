@@ -6,6 +6,64 @@ import statistics
 from PIL import Image
 from PIL import ImageFilter
 import pytesseract
+import os
+
+import nnabla as nn
+import nnabla.functions as F
+import nnabla.parametric_functions as PF
+
+MLPATH = os.path.dirname(os.path.realpath(__file__)).split('\\')
+MLPATH = '\\'.join(MLPATH[:len(MLPATH) - 1]) + "\\MLParam\\"
+
+
+def network01E(x, y, test=False):
+    # Input:x -> 1,64,48
+    # BinaryConnectConvolution -> 64,60,44
+    h = PF.binary_connect_convolution(x, 64, (5,5), (0,0), name='BinaryConnectConvolution')
+    # MaxPooling -> 64,30,22
+    h = F.max_pooling(h, (2,2), (2,2))
+    # BatchNormalization
+    h = PF.batch_normalization(h, (1,), 0.5, 0.01, not test, name='BatchNormalization')
+    # BinarySigmoid
+    h = F.binary_sigmoid(h)
+    # BinaryConnectConvolution_2 -> 64,26,18
+    h = PF.binary_connect_convolution(h, 64, (5,5), (0,0), name='BinaryConnectConvolution_2')
+    # MaxPooling_2 -> 64,13,9
+    h = F.max_pooling(h, (2,2), (2,2))
+    # BatchNormalization_2
+    h = PF.batch_normalization(h, (1,), 0.5, 0.01, not test, name='BatchNormalization_2')
+    # BinarySigmoid_2
+    h = F.binary_sigmoid(h)
+    # BinaryConnectAffine -> 512
+    h = PF.binary_connect_affine(h, (512,), name='BinaryConnectAffine')
+    # BatchNormalization_3
+    h = PF.batch_normalization(h, (1,), 0.5, 0.01, not test, name='BatchNormalization_3')
+    # BinarySigmoid_3
+    h = F.binary_sigmoid(h)
+    # BinaryConnectAffine_2 -> 10
+    h = PF.binary_connect_affine(h, (10,), name='BinaryConnectAffine_2')
+    # BatchNormalization_4
+    h = PF.batch_normalization(h, (1,), 0.5, 0.01, not test, name='BatchNormalization_4')
+    # Softmax
+    h = F.softmax(h)
+    # CategoricalCrossEntropy -> 1
+    # h = F.categorical_cross_entropy(h, y)
+    return h
+
+
+
+# load parameters
+nn.load_parameters(MLPATH + "./01E.h5")
+
+# Prepare input variable
+var01E = nn.Variable((1,1,64,48))
+
+# Let input data to x.d
+# x.d = ...
+var01E.data.zero()
+
+# Build network for inference
+ans01E = network01E(var01E, None, test=True)
 
 def toGreyImg(img):
 	return cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
@@ -30,10 +88,18 @@ def show(img):
 	plt.show()
 
 def ocr01E(img):
+	ANSLIST = ['0', '1', 'E']
+	img = img.copy()
 	img = denoiseMedian(img)
 	img = binarize(img)
-	answer = '0'
-	return answer
+
+	img = cv2.resize(img, (48, 64), interpolation=cv2.INTER_CUBIC)
+	img = img / 255
+
+	var01E.d = img
+
+	ans01E.forward()
+	return ANSLIST[ans01E.d.argmax(axis=1)[0]]
 
 def avgGreyVal(img):
 	img = denoiseMedian(img)
@@ -99,7 +165,7 @@ def filterInvalidTextRegions(img, regions):
 			noRepetition.append((xMin, yMin, xMax, yMax))
 
 	withWhiteBorder = []
-	AMP = 1.5
+	AMP = 1.75
 	HSIDERATIO = 0.75
 	for r in noRepetition:
 		center = (np.mean([r[0], r[2]]), np.mean([r[1], r[3]]))
@@ -123,8 +189,6 @@ def filterInvalidTextRegions(img, regions):
 			# print("REJECTED: Greyval = {}".format(avgGreyVal(testScanImg)))
 	
 	return withWhiteBorder
-
-
 
 def main():
 	#from sys import argv

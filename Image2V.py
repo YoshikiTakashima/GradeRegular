@@ -363,9 +363,12 @@ def detectLabels(img, tracedLines, states):
 	
 	letterRects = ImageUtils.mser(editImg)
 	letterRects = ImageUtils.filterInvalidTextRegions(img, letterRects)
-	
 
-	return letterRects
+	labeledRects = []
+	for rect in letterRects:
+		labeledRects.append((rect[0], rect[1], rect[2], rect[3], \
+		ImageUtils.ocr01E(img[rect[1]:rect[3], rect[0]:rect[2]])))
+	return labeledRects
 
 def encode(states, lines):
 	encodedNodeList = []
@@ -374,16 +377,19 @@ def main():
 	COLORMAP = {'NA': (0, 0, 255), 'A': (255, 0, 0)}
 	from sys import argv
 	img = cv2.imread(argv[1])
+
+	print("Detecting States... ")
 	states = detectStates(img)
 	states = filterRepetition(states)
 	states = filterRepetition(states)
 	states = classifyStateType(img, states)
-	print()
+	print("\nScanning Lines between states...")
 	lines = scanLinesAroundStates(img, states)
 	extLines = extrapolateLines(img, lines, states)
-	print()
+	print("Connecting Partial lines to form full lines...")
 	lineResult = connectLines(extLines)
 
+	print("\nDetecting Transition Labels...")
 	labels = detectLabels(img, lineResult, states)
 
 	# print(lines)
@@ -400,9 +406,10 @@ def main():
 			else:
 				cv2.rectangle(img, (rect[0], rect[1]), (rect[2], rect[3]), (0,255,0), 2)
 	for r in labels:
+		print("LABEL: {}".format(r[4]))
 		cv2.rectangle(img, (r[0], r[1]), (r[2], r[3]), (200,200,0), 2)
 	
-	ImageUtils.show(img)
+		ImageUtils.show(img)
 
 if __name__ == '__main__':
 	main()
