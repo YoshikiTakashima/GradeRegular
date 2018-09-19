@@ -370,8 +370,140 @@ def detectLabels(img, tracedLines, states):
 		ImageUtils.ocr01E(img[rect[1]:rect[3], rect[0]:rect[2]])))
 	return labeledRects
 
-def encode(states, lines):
+def nearestElementIndex(x, y, elements):
+	fX = x
+	fY = y
+	fStateIndex = 0
+	for i in range(1, len(elements)):
+		current = elements[i]
+		cX = current[0]
+		cY = current[1]
+		selected = elements[fStateIndex]
+		sX = selected[0]
+		sY = selected[1]
+		if math.hypot((fX - cX), (fY - cY)) < math.hypot((fX - sX), (fY - sY)):
+			fStateIndex = i
+	return fStateIndex
+
+def encode(states, lines, labels, img): #img included for debug, remvoe later
 	encodedNodeList = []
+	
+	fList = []
+	lList = []
+	s2sTransitions = []
+	for line in lines:
+		first = line[0]
+		fList.append(first)
+		fX = first[0]
+		fY = first[0]
+		fStateIndex = nearestElementIndex(fX, fY, states)
+		last = line[-1]
+		lList.append(last)
+		lX = last[0]
+		lY = last[1]
+		lStateIndex = nearestElementIndex(lX, lY, states)
+		s2sTransitions.append((fStateIndex, lStateIndex))
+
+	labelDone = []
+	for line in labels:
+		labelDone.append(False)
+	transitionDone = []
+	for t in s2sTransitions:
+		transitionDone.append(False)
+	
+	labeledTransitions = []
+	while True: #process all self loops first
+		targetIndex = -1
+		for j in range(len(s2sTransitions)):
+			current = s2sTransitions[j]
+			if current[0] == current[1]:
+				targetIndex = j
+				break
+		if targetIndex >= 0:
+			target = lines[targetIndex]
+			tFirst = target[0]
+			tLast = target[-1]
+			tX = int(round((tFirst[0] + tLast[0]) / 2))
+			tY = int(round((tFirst[1] + tLast[1]) / 2))
+			tLabelIndex = nearestElementIndex(tX, tY, labels)
+
+			tValue = labels[tLabelIndex][4]
+			labelDone[tLabelIndex] = True
+			transit = s2sTransitions[targetIndex]
+			transitionDone[targetIndex] = True
+			s2sTransitions[targetIndex] = ((transit[0], -1), (transit[1], tValue))
+		else:
+			break
+
+	for i in range(len(labels)):
+		label = labels[i]
+		if not labelDone[i]:
+			initIndex = -1
+			for k in range(len(transitionDone)):
+				if not transitionDone[k]:
+					initIndex = k
+					break
+			
+			currentClosestIndex = initIndex
+			if initIndex >= 0:
+				lastLine = lines[currentClosestIndex]
+				labelX = label[0]
+				labelY = label[1]
+				fOrLIndex = nearestElementIndex(labelX, labelY, [lastLine[0], lastLine[-1]])
+				for j in range(initIndex + 1, len(lines)):
+					if not transitionDone[j]:
+						current = lines[j]
+						cFirst = current[0]
+						cLast = current[-1]
+						lastLine = lines[currentClosestIndex]
+						
+						nearest = nearestElementIndex(labelX, labelY, [lastLine[0], lastLine[-1], cFirst, cLast])
+						if nearest >= 2:
+							currentClosestIndex = j
+							fOrLIndex = nearest - 2
+				
+				transitionDone[currentClosestIndex] = True
+				transit = s2sTransitions[currentClosestIndex]
+				labelDone[i] = True
+				tValue = label[4]
+
+				encoded = ()
+				if fOrLIndex == 0:
+					encoded = ((transit[0], tValue), (transit[1], -1))
+				else:
+					encoded = ((transit[0], -1), (transit[1], tValue))
+				s2sTransitions[currentClosestIndex] = encoded
+				
+				# pImg = img.copy()
+				# line = lines[currentClosestIndex]
+				# for i in range(len(line)):
+				# 	rect = line[i]
+				# 	cv2.rectangle(pImg, (rect[0], rect[1]), (rect[2], rect[3]), (0,255,0), 2)
+				# r = label
+				# cv2.rectangle(pImg, (r[0], r[1]), (r[2], r[3]), (200,200,0), 2)
+				# ImageUtils.show(pImg)
+
+			else:
+				break
+
+	return s2sTransitions
+
+def transitionSetToStateValueMap(state, transitionsProcessed):
+	stateValueMap = []
+	for i in range(len(state)):
+		dests = ([], [], [])
+		for t in transitionsProcessed:
+			if (i, -1) in t:
+				index = t.index((i, -1))
+				target = ()
+				if index == 0:
+					target = t[1]
+				else:
+					target = t[0]
+				dests[target[1]].append(target[0])
+		stateValueMap.append(dests)
+	
+	return stateValueMap
 
 def main():
 	COLORMAP = {'NA': (0, 0, 255), 'A': (255, 0, 0)}
@@ -392,24 +524,33 @@ def main():
 	print("\nDetecting Transition Labels...")
 	labels = detectLabels(img, lineResult, states)
 
+	print("\nEncoding All Data to Transition Map...")
+	encoding = encode(states, lineResult, labels, img)
+	finalEncoding = transitionSetToStateValueMap(states, encoding)
+
+	for e in finalEncoding:
+		print(e)
 	# print(lines)
 	for s in states:
 		# draw the outer circle
 		cv2.circle(img,(s[0],s[1]),int(round(1.25 * s[2])),COLORMAP[s[3]],2)
 		# draw the center of the circle
 		cv2.circle(img,(s[0],s[1]),2,(0,0,255),3)
-	for line in lineResult:
+	for j in range(len(lineResult)):
+		line = lineResult[j]
 		for i in range(len(line)):
 			rect = line[i]
-			if i == 0 or i == len(line) - 1:
-				cv2.rectangle(img, (rect[0], rect[1]), (rect[2], rect[3]), (200,0,200), 2)
-			else:
-				cv2.rectangle(img, (rect[0], rect[1]), (rect[2], rect[3]), (0,255,0), 2)
-	for r in labels:
-		print("LABEL: {}".format(r[4]))
-		cv2.rectangle(img, (r[0], r[1]), (r[2], r[3]), (200,200,0), 2)
+			cv2.rectangle(img, (rect[0], rect[1]), (rect[2], rect[3]), (0,255,0), 2)
+		# print(encoding[j])
+		# ImageUtils.show(img)
 	
-		ImageUtils.show(img)
+	ANSLIST = ['0', '1', 'E']
+	for r in labels:
+		# print("LABEL: {}".format(ANSLIST[r[4]]))
+		cv2.rectangle(img, (r[0], r[1]), (r[2], r[3]), (200,200,0), 2)
+	ImageUtils.show(img)
+
+	
 
 if __name__ == '__main__':
 	main()

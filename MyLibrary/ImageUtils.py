@@ -88,7 +88,6 @@ def show(img):
 	plt.show()
 
 def ocr01E(img):
-	ANSLIST = ['0', '1', 'E']
 	img = img.copy()
 	img = denoiseMedian(img)
 	img = binarize(img)
@@ -99,7 +98,7 @@ def ocr01E(img):
 	var01E.d = img
 
 	ans01E.forward()
-	return ANSLIST[ans01E.d.argmax(axis=1)[0]]
+	return ans01E.d.argmax(axis=1)[0]
 
 def avgGreyVal(img):
 	img = denoiseMedian(img)
