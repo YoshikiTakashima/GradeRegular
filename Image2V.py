@@ -117,6 +117,17 @@ def filterRepetition(states):
 			break
 	return filtered
 
+def orderStates(states):
+	selectedIndex = 0
+	for i in range(1,len(states)):
+		selected = states[selectedIndex]
+		current = states[i]
+		if current[0] < selected[0]:
+			selectedIndex = i
+	leftMost = states[selectedIndex]
+	del states[selectedIndex]
+	return ([leftMost] + states)
+
 def classifyStateType(img, states):
 	h,w,depth = img.shape
 	classified = []
@@ -514,6 +525,7 @@ def main():
 	states = detectStates(img)
 	states = filterRepetition(states)
 	states = filterRepetition(states)
+	states = orderStates(states)
 	states = classifyStateType(img, states)
 	print("\nScanning Lines between states...")
 	lines = scanLinesAroundStates(img, states)
@@ -532,10 +544,10 @@ def main():
 		print(e)
 	# print(lines)
 	for s in states:
-		# draw the outer circle
-		cv2.circle(img,(s[0],s[1]),int(round(1.25 * s[2])),COLORMAP[s[3]],2)
-		# draw the center of the circle
-		cv2.circle(img,(s[0],s[1]),2,(0,0,255),3)
+		cv2.circle(img,(s[0],s[1]),int(round(1.25 * s[2])),COLORMAP[s[3]],2) # draw the outer circle
+		cv2.circle(img,(s[0],s[1]),2,(0,0,255),3) # draw the center of the circle
+		ImageUtils.show(img)
+
 	for j in range(len(lineResult)):
 		line = lineResult[j]
 		for i in range(len(line)):
