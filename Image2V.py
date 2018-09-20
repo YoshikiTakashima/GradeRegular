@@ -546,7 +546,7 @@ def main():
 	for s in states:
 		cv2.circle(img,(s[0],s[1]),int(round(1.25 * s[2])),COLORMAP[s[3]],2) # draw the outer circle
 		cv2.circle(img,(s[0],s[1]),2,(0,0,255),3) # draw the center of the circle
-		ImageUtils.show(img)
+		# ImageUtils.show(img)
 
 	for j in range(len(lineResult)):
 		line = lineResult[j]
