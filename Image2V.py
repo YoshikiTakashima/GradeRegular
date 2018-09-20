@@ -3,7 +3,9 @@ import numpy as np
 import math
 import statistics
 from matplotlib import pyplot as plt
+
 import MyLibrary.ImageUtils as ImageUtils
+import MyLibrary.VerilogUtil as VUtil
 
 SCANNERWIDTH = 2 # NOTE: Real scanner width is 2(that value) + 1
 def scanToDark(img, point, minSize, maxSize):
@@ -561,6 +563,8 @@ def main():
 		# print("LABEL: {}".format(ANSLIST[r[4]]))
 		cv2.rectangle(img, (r[0], r[1]), (r[2], r[3]), (200,200,0), 2)
 	ImageUtils.show(img)
+
+	print(VUtil.transitionToVerilog(states, finalEncoding))
 
 	
 
