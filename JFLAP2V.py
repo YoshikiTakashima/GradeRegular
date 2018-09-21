@@ -40,11 +40,13 @@ def xmlRoot2Verilog(root):
     encoded = transitionSetToStateValueMap(states, transitions)
     return VUtil.transitionToVerilog(states, encoded)
 
+def processJFLAP(path):
+    e = xml.etree.ElementTree.parse(path).getroot()
+    return(xmlRoot2Verilog(e))
+
 def main():
     from sys import argv
-    e = xml.etree.ElementTree.parse(argv[1]).getroot()
-
-    print(xmlRoot2Verilog(e))
+    print(processJFLAP(argv[1]))
 
 
 if __name__ == '__main__':

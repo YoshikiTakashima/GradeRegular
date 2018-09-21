@@ -521,6 +521,30 @@ def transitionSetToStateValueMap(state, transitionsProcessed):
 	
 	return stateValueMap
 
+def processImage(path):
+	img = cv2.imread(path)
+
+	print("Detecting States... ")
+	states = detectStates(img)
+	states = filterRepetition(states)
+	states = filterRepetition(states)
+	states = orderStates(states)
+	states = classifyStateType(img, states)
+	print("\nScanning Lines between states...")
+	lines = scanLinesAroundStates(img, states)
+	extLines = extrapolateLines(img, lines, states)
+	print("Connecting Partial lines to form full lines...")
+	lineResult = connectLines(extLines)
+
+	print("\nDetecting Transition Labels...")
+	labels = detectLabels(img, lineResult, states)
+
+	print("\nEncoding All Data to Transition Map...")
+	encoding = encode(states, lineResult, labels, img)
+	finalEncoding = transitionSetToStateValueMap(states, encoding)
+
+	return(VUtil.transitionToVerilog(states, finalEncoding))
+
 def main():
 	COLORMAP = {'NA': (0, 0, 255), 'A': (255, 0, 0)}
 	from sys import argv

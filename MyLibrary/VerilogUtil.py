@@ -1,9 +1,37 @@
 from tarjan.tc import tc
+EQUALTEMPLATE = """
+module Equals(clock, inVal, res);
+input clock, inVal, res;
+wire clock, inVal, res;
+
+wire out1, out2;
+
+Automaton1 A1 (
+	.clk	(closk),
+	.in		(inVal),
+	.reset	(res)
+	.out	(out1)
+);
+
+Automaton2 A2 (
+	.clk	(clock),
+	.in		(inVal),
+	.reset	(res)
+	.out	(out2)
+);
+
+always @(posedge clock) begin
+	if(~res)
+		assert(out1 == out2);
+end
+endmodule
+
+"""
 
 VERILOGTEMPLATE = """
 //verilog NFA template
 
-module statem(clk, in, reset, out);
+module Automaton(clk, in, reset, out);
 
 input clk, in, reset;
 output out;
@@ -33,7 +61,7 @@ endmodule
 """
 CASEELEMENTTEMPLATE = """
 					{0}'b{1}:
-						state <= {0}'b{2};"""
+						state = {0}'b{2};"""
 
 
 def epsionTransitionDestList(transitions):
