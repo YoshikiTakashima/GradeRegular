@@ -7,7 +7,7 @@ from matplotlib import pyplot as plt
 import MyLibrary.ImageUtils as ImageUtils
 import MyLibrary.VerilogUtil as VUtil
 
-SCANNERWIDTH = 2 # NOTE: Real scanner width is 2(that value) + 1
+SCANNERWIDTH = 4 # NOTE: Real scanner width is 2(that value) + 1
 def scanToDark(img, point, minSize, maxSize):
 	x = point[0]
 	y = point[1]
@@ -76,7 +76,7 @@ def scanToDark(img, point, minSize, maxSize):
 	symmetricTolerance = 0.5 #0.5 orig
 	isSymmetric = (abs((vertSize / horizSize) - 1) < symmetricTolerance)
 
-	centerTolerance = 0.15	#0.5 orig
+	centerTolerance = 0.175	#0.5 orig
 	isCentered = (abs((top - bot) / vertSize) < centerTolerance) and (abs((left - right) / horizSize) < centerTolerance)
 
 	isCircleCenter = isContained and isGoodSize and isSymmetric and isCentered
@@ -120,15 +120,18 @@ def filterRepetition(states):
 	return filtered
 
 def orderStates(states):
+	result = []
 	selectedIndex = 0
 	for i in range(1,len(states)):
 		selected = states[selectedIndex]
 		current = states[i]
 		if current[0] < selected[0]:
 			selectedIndex = i
-	leftMost = states[selectedIndex]
-	del states[selectedIndex]
-	return ([leftMost] + states)
+	if len(states) > 0:
+		leftMost = states[selectedIndex]
+		del states[selectedIndex]
+		result = [leftMost] + states
+	return (result)
 
 def classifyStateType(img, states):
 	h,w,depth = img.shape
@@ -142,7 +145,7 @@ def classifyStateType(img, states):
 			int(round(0.1 * min(h, w))), int(round(0.4 * min(h, w))))
 
 		if isCircleCenter:
-			classified.append((s[0], s[1], r, 'A'))
+			classified.append((s[0], s[1], int(round(1.1*r)), 'A'))
 		else:
 			classified.append((s[0], s[1], s[2], 'NA'))		
 
@@ -187,8 +190,8 @@ def scanLinesAroundStates(img, states):
 		smallSide = int(round(SQUARESIZE * smallLength))
 		topX = max(current[0] - int(round(smallLength / 2)), 0)
 		topY = max(current[1] - int(round(length / 2)), 0)
-		maxX = min(topX + smallLength - smallSide - 1, w - smallSide - 1)
-		maxY = min(topY + length - side -1, h - side - 1)
+		maxX = min(topX + smallLength - smallSide - 1, w - 1)
+		maxY = min(topY + length - side -1, h - 1)
 
 		xList = []
 		yList = []
@@ -546,7 +549,7 @@ def main():
 		print(e)
 	# print(lines)
 	for s in states:
-		cv2.circle(img,(s[0],s[1]),int(round(1.25 * s[2])),COLORMAP[s[3]],2) # draw the outer circle
+		cv2.circle(img,(s[0],s[1]),int(round(s[2])),COLORMAP[s[3]],2) # draw the outer circle
 		cv2.circle(img,(s[0],s[1]),2,(0,0,255),3) # draw the center of the circle
 		# ImageUtils.show(img)
 

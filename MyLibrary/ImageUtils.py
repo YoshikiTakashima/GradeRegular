@@ -166,6 +166,7 @@ def filterInvalidTextRegions(img, regions):
 	withWhiteBorder = []
 	AMP = 1.75
 	HSIDERATIO = 0.75
+	MARGINWIDTH = 3
 	for r in noRepetition:
 		center = (np.mean([r[0], r[2]]), np.mean([r[1], r[3]]))
 		xDiff = abs(r[2] - r[0])
@@ -181,7 +182,8 @@ def filterInvalidTextRegions(img, regions):
 
 		testScanImg = np.copy(img[yMin:yMax, xMin:xMax])
 		reducedHeight, reducedWidth, reducedDepth = testScanImg.shape
-		testScanImg[1:reducedHeight-2, 1:reducedWidth-2] = (255, 255, 255) #white out everything except the outer lining
+		testScanImg[MARGINWIDTH:reducedHeight-(MARGINWIDTH + 1), \
+		MARGINWIDTH:reducedWidth-(MARGINWIDTH + 1)] = (255, 255, 255) #white out everything except the outer lining
 		if avgGreyVal(testScanImg) == 255:
 			withWhiteBorder.append((xMin, yMin, xMax, yMax))
 		# else:
