@@ -1,24 +1,15 @@
 from tarjan.tc import tc
 EQUALTEMPLATE = """
 module Equals(clock, inVal, res);
-input clock, inVal, res;
-wire clock, inVal, res;
+input clock;
+input inVal;
+input res;
 
 wire out1, out2;
 
-Automaton1 A1 (
-	.clk	(closk),
-	.in		(inVal),
-	.reset	(res)
-	.out	(out1)
-);
+Automaton1 A1(clk, in, reset, out1);
 
-Automaton2 A2 (
-	.clk	(clock),
-	.in		(inVal),
-	.reset	(res)
-	.out	(out2)
-);
+Automaton2 A2(clk, in, reset, out2);
 
 always @(posedge clock) begin
 	if(~res)
@@ -42,19 +33,17 @@ assign out = {};
 
 always @(posedge clk or posedge reset)
 	begin
-		if (reset) {{
+		if (reset)
 			state = {};
-		}} else {{
-			if (in) {{
+		else
+			if (in)
 				case (state)
 					{}
 				endcase
-			}} else {{
+			else
 				case (state)
 					{}
 				endcase
-			}}
-		}}
 	 end
 
 endmodule

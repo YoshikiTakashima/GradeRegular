@@ -1,3 +1,4 @@
+
 //verilog NFA template
 
 module Automaton1(clk, in, reset, out);
@@ -11,10 +12,10 @@ assign out = state[1];
 
 always @(posedge clk or posedge reset)
 	begin
-		if (reset) {
+		if (reset)
 			state = 2'b01;
-		} else {
-			if (in) {
+		else
+			if (in)
 				case (state)
 					
 					2'b00:
@@ -26,7 +27,7 @@ always @(posedge clk or posedge reset)
 					2'b11:
 						state = 2'b10;
 				endcase
-			} else {
+			else
 				case (state)
 					
 					2'b00:
@@ -38,8 +39,6 @@ always @(posedge clk or posedge reset)
 					2'b11:
 						state = 2'b01;
 				endcase
-			}
-		}
 	 end
 
 endmodule
@@ -57,10 +56,10 @@ assign out = state[1];
 
 always @(posedge clk or posedge reset)
 	begin
-		if (reset) {
+		if (reset)
 			state = 2'b01;
-		} else {
-			if (in) {
+		else
+			if (in)
 				case (state)
 					
 					2'b00:
@@ -72,7 +71,7 @@ always @(posedge clk or posedge reset)
 					2'b11:
 						state = 2'b11;
 				endcase
-			} else {
+			else
 				case (state)
 					
 					2'b00:
@@ -84,35 +83,24 @@ always @(posedge clk or posedge reset)
 					2'b11:
 						state = 2'b01;
 				endcase
-			}
-		}
 	 end
 
 endmodule
 
-
 module Equals(clock, inVal, res);
-input clock, inVal, res;
-wire clock, inVal, res;
+input clock;
+input inVal;
+input res;
 
 wire out1, out2;
 
-Automaton1 A1 (
-	.clk	(closk),
-	.in		(inVal),
-	.reset	(res)
-	.out	(out1)
-);
+Automaton1 A1(clk, in, reset, out1);
 
-Automaton2 A2 (
-	.clk	(clock),
-	.in		(inVal),
-	.reset	(res)
-	.out	(out2)
-);
+Automaton2 A2(clk, in, reset, out2);
 
 always @(posedge clock) begin
-	if(~reset)
+	if(~res)
 		assert(out1 == out2);
-	end
+end
 endmodule
+
