@@ -86,21 +86,3 @@ always @(posedge clk or posedge reset)
 	 end
 
 endmodule
-
-module Equals(clock, inVal, res);
-input clock;
-input inVal;
-input res;
-
-wire out1, out2;
-
-Automaton1 A1(clk, in, reset, out1);
-
-Automaton2 A2(clk, in, reset, out2);
-
-always @(posedge clock) begin
-	if(~res)
-		assert(out1 == out2);
-end
-endmodule
-
