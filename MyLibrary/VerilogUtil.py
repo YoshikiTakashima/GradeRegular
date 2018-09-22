@@ -11,10 +11,10 @@ Automaton1 A1(clk, in, reset, out1);
 
 Automaton2 A2(clk, in, reset, out2);
 
-always @(posedge clock) begin
-	if(~res)
-		assert(out1 == out2);
-end
+`ifdef FORMAL
+  assert property (out1 == out2);
+`endif
+
 endmodule
 
 """
@@ -50,7 +50,7 @@ endmodule
 """
 CASEELEMENTTEMPLATE = """
 					{0}'b{1}:
-						state = {0}'b{2};"""
+						state <= {0}'b{2};"""
 
 
 def epsionTransitionDestList(transitions):

@@ -25,7 +25,7 @@ def main():
     i = v2.find("Automaton")
     v2 = v2[:i] + "Automaton2" + v2[i + len("Automaton"):]
 
-    verilog = v1 + v2 #+ VUtil.EQUALTEMPLATE
+    verilog = v1 + v2 + VUtil.EQUALTEMPLATE
 
     fOut = open("./Workspace/toFormal.v", "w")
     fOut.write(verilog)
