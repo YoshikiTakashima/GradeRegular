@@ -1,4 +1,4 @@
-name: base
+name: GradeRegular
 channels:
   - defaults
 dependencies:
