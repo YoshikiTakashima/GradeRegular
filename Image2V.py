@@ -543,7 +543,7 @@ def processImage(path):
 	encoding = encode(states, lineResult, labels, img)
 	finalEncoding = transitionSetToStateValueMap(states, encoding)
 
-	return(VUtil.transitionToVerilog(states, finalEncoding))
+	return states, finalEncoding
 
 def main():
 	COLORMAP = {'NA': (0, 0, 255), 'A': (255, 0, 0)}

@@ -1,13 +1,9 @@
 
 //verilog NFA template
 
-module Automaton1(clk, in, reset, out);
+module Automaton1(input clk, in, reset, output out);
 
-input clk, in, reset;
-output out;
-
-reg [1:0] state;
-wire out;
+reg [1:0] state = 2'b01;
 assign out = state[1];
 
 always @(posedge clk or posedge reset)
@@ -45,62 +41,69 @@ endmodule
 
 //verilog NFA template
 
-module Automaton2(clk, in, reset, out);
+module Automaton2(input clk, in, reset, output out);
 
-input clk, in, reset;
-output out;
-
-reg [1:0] state;
-wire out;
+reg [2:0] state = 3'b001;
 assign out = state[1];
 
 always @(posedge clk or posedge reset)
 	begin
 		if (reset)
-			state = 2'b01;
+			state = 3'b001;
 		else
 			if (in)
 				case (state)
 					
-					2'b00:
-						state <= 2'b00;
-					2'b01:
-						state <= 2'b10;
-					2'b10:
-						state <= 2'b10;
-					2'b11:
-						state <= 2'b10;
+					3'b000:
+						state <= 3'b000;
+					3'b001:
+						state <= 3'b110;
+					3'b010:
+						state <= 3'b010;
+					3'b011:
+						state <= 3'b110;
+					3'b100:
+						state <= 3'b000;
+					3'b101:
+						state <= 3'b110;
+					3'b110:
+						state <= 3'b010;
+					3'b111:
+						state <= 3'b110;
 				endcase
 			else
 				case (state)
 					
-					2'b00:
-						state <= 2'b00;
-					2'b01:
-						state <= 2'b01;
-					2'b10:
-						state <= 2'b01;
-					2'b11:
-						state <= 2'b01;
+					3'b000:
+						state <= 3'b000;
+					3'b001:
+						state <= 3'b001;
+					3'b010:
+						state <= 3'b001;
+					3'b011:
+						state <= 3'b001;
+					3'b100:
+						state <= 3'b000;
+					3'b101:
+						state <= 3'b001;
+					3'b110:
+						state <= 3'b001;
+					3'b111:
+						state <= 3'b001;
 				endcase
 	 end
 
 endmodule
 
-module Equals(clock, inVal, res);
-input clock;
-input inVal;
-input res;
+module Equals(input clock, inVal, res);
 
 wire out1, out2;
 
-Automaton1 A1(clk, in, reset, out1);
+Automaton1 A1(.clk(clock), .in(inVal), .reset(res), .out(out1));
 
-Automaton2 A2(clk, in, reset, out2);
+Automaton2 A2(.clk(clock), .in(inVal), .reset(res), .out(out2));
 
-`ifdef FORMAL
-	assert property (out1 == out2);
-`endif
+assert property (out1 == out2);
 
 endmodule
 

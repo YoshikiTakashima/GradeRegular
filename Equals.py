@@ -10,12 +10,14 @@ def main():
     v2 = ""
 
     if ".jpg" in file1:
-        v1 = I2V.processImage(file1)
+        v1s, v1e = I2V.processImage(file1)
+        v1 = VUtil.transitionToVerilog(v1s, v1e)
     elif ".jff" in file1:
         v1 = J2V.processJFLAP(file1)
     
     if ".jpg" in file2:
-        v2 = I2V.processImage(file2)
+        v2s, v2e = I2V.processImage(file2)
+        v2 = VUtil.transitionToVerilog(v2s, v2e)
     elif ".jff" in file2:
         v2 = J2V.processJFLAP(file2)
 

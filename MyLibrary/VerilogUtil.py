@@ -1,19 +1,14 @@
 from tarjan.tc import tc
 EQUALTEMPLATE = """
-module Equals(clock, inVal, res);
-input clock;
-input inVal;
-input res;
+module Equals(input clock, inVal, res);
 
 wire out1, out2;
 
-Automaton1 A1(clk, in, reset, out1);
+Automaton1 A1(.clk(clock), .in(inVal), .reset(res), .out(out1));
 
-Automaton2 A2(clk, in, reset, out2);
+Automaton2 A2(.clk(clock), .in(inVal), .reset(res), .out(out2));
 
-`ifdef FORMAL
-  assert property (out1 == out2);
-`endif
+assert property (out1 == out2);
 
 endmodule
 
@@ -22,13 +17,9 @@ endmodule
 VERILOGTEMPLATE = """
 //verilog NFA template
 
-module Automaton(clk, in, reset, out);
+module Automaton(input clk, in, reset, output out);
 
-input clk, in, reset;
-output out;
-
-reg [{}:0] state;
-wire out;
+reg [{}:0] state = {};
 assign out = {};
 
 always @(posedge clk or posedge reset)
@@ -154,7 +145,7 @@ def transitionToVerilog(states, transitions):
 	init = "".join(list(initList))
 	zeroText = "{}'b".format(len(transitions)) + init
 	 
-	return VERILOGTEMPLATE.format(numStates - 1, acceptText, zeroText, caseText1, caseText0)
+	return VERILOGTEMPLATE.format(numStates - 1, zeroText, acceptText, zeroText, caseText1, caseText0)
 
 def main():
 	# Below is Sipser Example 1.38
