@@ -34,6 +34,6 @@ Converts images and JFLAP files (.jff) to Verilog. Formal Verification of output
 1. *Detect Circles*: For each point at equal intervals in X,Y, go in 4 directions until you hit a black point. If these are symmetric and fit profiles of size and skew, then it is a circle.
 2. *Detect Lines*: Around each node, For each black point, trace such unit you hit a node. Form traces and transitions from such.
 3. *Text Region Identification*: [OpenCV Implementation of MSER](https://docs.opencv.org/3.4/d3/d28/classcv_1_1MSER.html)
-4. *Machine Learning Text Classifcation*: Sony [NNABLA](https://github.com/sony/nnabla) and [Neural Network Console] (https://dl.sony.com/)
+4. *Machine Learning Text Classifcation*: Sony [NNABLA](https://github.com/sony/nnabla) and [Neural Network Console](https://dl.sony.com/)
 5. *Join Lines*: If 2 lines converge, join them.
 6. *Transition and State*: For each self loop, find label closed to it. For each remaining label, find transition endpoint closest to it.
