@@ -3,9 +3,6 @@ import numpy as np
 from matplotlib import pyplot as plt
 import math
 import statistics
-from PIL import Image
-from PIL import ImageFilter
-import pytesseract
 import os
 
 import nnabla as nn
