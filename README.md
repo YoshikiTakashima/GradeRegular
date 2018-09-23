@@ -11,7 +11,8 @@ Converts images and JFLAP files (.jff) to Verilog. Formal Verification of output
   * **pip install numpy matplotlib opencv-python nnabla**
 3. *Clone Git Repo*: **git clone [this repo url]**
 4. Using the programs:
-  * Make Verilog from image: **python Image2V.py [input image file]** 
+  * Make Verilog from image: **python Image2V.py [input image file]**
+  * Make JFLAP File (.jff) from image: **python Image2JFLAP.py [input image file]**
 
 ## Drawing Rules
 **RULES**: leftmost node is the start state, accept states are double circles, transitions are 0, 1, or Epsilon 
