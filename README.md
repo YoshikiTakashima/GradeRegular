@@ -8,7 +8,7 @@ Converts images and JFLAP files (.jff) to Verilog. Formal Verification of output
 2. *Install Python Libraries* (in Conda environment):
   * **conda install pip**
   * **conda install scipy scikit-image ipython**
-  * **pip install numpy matplotlib opencv-python nnabla**
+  * **pip install numpy matplotlib opencv-python nnabla tarjan**
 3. *Clone Git Repo*: **git clone [this repo url]**
 4. Using the programs:
   * Make Verilog from image: **python Image2V.py [input image file]**
@@ -38,3 +38,4 @@ Converts images and JFLAP files (.jff) to Verilog. Formal Verification of output
 4. *Machine Learning Text Classifcation*: Sony [NNABLA](https://github.com/sony/nnabla) and [Neural Network Console](https://dl.sony.com/)
 5. *Join Lines*: If 2 lines converge, join them.
 6. *Transition and State*: For each self loop, find label closed to it. For each remaining label, find transition endpoint closest to it.
+7. *Synthesize Verilog, Epsilon-Reachable State Detection*: [Tarjan's Algorithm](https://pypi.org/project/tarjan/) 
