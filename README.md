@@ -41,4 +41,4 @@ Converts images to JFLAP files (.jff) or Verilog. Formal Verification of output 
 4. *Machine Learning Text Classifcation*: Sony [NNABLA](https://github.com/sony/nnabla) and [Neural Network Console](https://dl.sony.com/)
 5. *Join Lines*: If 2 lines converge, join them.
 6. *Transition and State*: For each self loop, find label closed to it. For each remaining label, find transition endpoint closest to it.
-7. *Synthesize Verilog, Epsilon-Reachable State Detection*: [Tarjan's Algorithm](https://pypi.org/project/tarjan/) 
+7. *Synthesize Verilog, Epsilon-Reachable State Detection*: [Tarjan's Algorithm, Transitive closure](https://pypi.org/project/tarjan/) 
