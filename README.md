@@ -11,8 +11,11 @@ Converts images to JFLAP files (.jff) or Verilog. Formal Verification of output 
   * **pip install numpy matplotlib opencv-python nnabla tarjan**
 3. *Clone Git Repo*: **git clone [this repo url]**
 4. Using the programs:
-  * Make Verilog from image: **python Image2V.py [input image file]**
-  * Make JFLAP File (.jff) from image: **python Image2JFLAP.py [input image file]**
+  * Make Verilog from image: **python Image2V.py [input image file]** # this has visual output
+  * Make JFLAP File (.jff) from image: **python Image2JFLAP.py [input image file]** # this has no visual output but outputs .jff file to ./Workspace/imgResult.jff
+  
+**Sample Reference Visual Output**
+![Run Sample](https://github.com/YoshikiTakashima/GradeRegular/blob/master/Wiki/goodRun.jpeg "Good Run Sample")
 
 ## Drawing Rules
 **RULES**: leftmost node is the start state, accept states are double circles, transitions are 0, 1, or Epsilon 
@@ -30,7 +33,7 @@ Converts images to JFLAP files (.jff) or Verilog. Formal Verification of output 
 3. Keep transition labels from touching transition lines.
 
 ## General Program Structure and Specific Algorithms Used
-![alt text](https://github.com/YoshikiTakashima/GradeRegular/blob/master/Wiki/Flowchart.JPG "Logo Title Text 1")
+![Flowchart](https://github.com/YoshikiTakashima/GradeRegular/blob/master/Wiki/Flowchart.JPG "Logo Title Text 1")
 
 1. *Detect Circles*: For each point at equal intervals in X,Y, go in 4 directions until you hit a black point. If these are symmetric and fit profiles of size and skew, then it is a circle.
 2. *Detect Lines*: Around each node, For each black point, trace such unit you hit a node. Form traces and transitions from such.
