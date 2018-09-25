@@ -14,7 +14,7 @@ Converts images to JFLAP files (.jff) or Verilog. Formal Verification of output 
   * Make Verilog from image: **python Image2V.py [input image file]** # this has visual output
   * Make JFLAP File (.jff) from image: **python Image2JFLAP.py [input image file]** # this has no visual output but outputs .jff file to ./Workspace/imgResult.jff
   
-**Sample Reference Visual Output**
+**Sample Visual Output (Examples/epsilonEnds1.jpg)**
 ![Run Sample](https://github.com/YoshikiTakashima/GradeRegular/blob/master/Wiki/goodRun.jpeg "Good Run Sample")
 
 ## Drawing Rules
