@@ -8,7 +8,8 @@ Converts images to JFLAP files (.jff) or Verilog. Use JFLAP for equivalence chec
 2. *Install Python Libraries* (in Anaconda Prompt):
   * **conda install pip**
   * **conda install scipy scikit-image ipython**
-  * **pip install numpy matplotlib opencv-python nnabla tarjan**
+  * **pip install numpy matplotlib opencv-python tarjan**
+  * Install [NNABLA](https://nnabla.readthedocs.io/en/latest/python/installation.html)
 3. *Clone Git Repo*: **git clone [this repo url]**
 4. Using the programs:
   * Make Verilog from image: **python Image2V.py [input image file]** # this has visual output
