@@ -1,6 +1,6 @@
 # GradeRegular
 ## Summary
-Converts images to JFLAP files (.jff) or Verilog. Formal Verification of output is still incomplete. Use JFLAP for equivalence checking.
+Converts images to JFLAP files (.jff) or Verilog. Formal Verification of output is still incomplete; use JFLAP for equivalence checking.
 *NOTE: detction accuracy is not super great. Any help will be appriciated.
 
 ## Setup Procedures
