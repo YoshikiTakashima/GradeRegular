@@ -6,10 +6,14 @@ Converts images to JFLAP files (.jff) or Verilog. Use JFLAP for equivalence chec
 ## Setup Procedures
 1. *Install MiniConda3*: https://conda.io/miniconda.html
 2. *Install Python Libraries* (in Anaconda Prompt):
+  * **conda create --name=regular python=3.5**
+  * **conda activate regular**
   * **conda install pip**
+  * **python -m pip install --upgrade pip**
   * **conda install scipy scikit-image ipython**
-  * **pip install numpy matplotlib opencv-python tarjan**
-  * Install [NNABLA](https://nnabla.readthedocs.io/en/latest/python/installation.html)
+  * **conda install setuptools wheel**
+  * **pip install nnabla numpy matplotlib opencv-python tarjan**
+  * **conda install -c anaconda pywin32** #(This is for windows only)
 3. *Clone Git Repo*: **git clone [this repo url]**
 4. Using the programs:
   * Make Verilog from image: **python Image2V.py [input image file]** # this has visual output
