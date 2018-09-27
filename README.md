@@ -32,7 +32,7 @@ Converts images to JFLAP files (.jff) or Verilog. Use JFLAP for equivalence chec
 2. Keep the number of nodes low (2-4) so that these do not form near-closed regions.
 3. Keep transition labels from touching transition lines.
 
-## General Program Structure and Specific Algorithms Used
+## General Program Structure and Specific Algorithms/Tools Used
 ![Flowchart](https://github.com/YoshikiTakashima/GradeRegular/blob/master/Wiki/Flowchart.JPG "Logo Title Text 1")
 
 1. *Detect Circles*: For each point at equal intervals in X,Y, go in 4 directions until you hit a black point. If these are symmetric and fit profiles of size and skew, then it is a circle.
