@@ -1,7 +1,8 @@
 # GradeRegular
 ## Summary
 Converts images to JFLAP files (.jff) or Verilog. Use JFLAP for equivalence checking between multiple diagrams.
-*NOTE: detction accuracy is not super great. Any help will be appriciated.
+
+*NOTE: State detction accuracy is not super great. Any help will be appriciated.
 
 ## Setup Procedures
 1. *Install MiniConda3*: https://conda.io/miniconda.html
