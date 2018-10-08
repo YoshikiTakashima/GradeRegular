@@ -39,6 +39,7 @@ Converts images to JFLAP files (.jff) or Verilog. Use JFLAP for equivalence chec
 3. Keep transition labels from touching transition lines.
 
 ## General Program Structure and Specific Algorithms/Tools Used
+*NOTE*: in the below chart, **Synthesize Verilog** is replaced with **Synthesize JFLAP** when running the Image2JFLAP program.
 ![Flowchart](https://github.com/YoshikiTakashima/GradeRegular/blob/master/Wiki/Flowchart.JPG "Logo Title Text 1")
 
 1. *Detect Circles*: For each point at equal intervals in X,Y, go in 4 directions until you hit a black point. If these are symmetric and fit profiles of size and skew, then it is a circle.
